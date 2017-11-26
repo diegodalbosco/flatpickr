@@ -340,7 +340,11 @@ function FlatpickrInstance(
     const debouncedResize = debounce(onResize, 50);
     self._debouncedChange = debounce(triggerChange, 300);
 
-    if (self.config.mode === "range" && self.daysContainer && !/iPhone|iPad|iPod/i.test(navigator.userAgent))
+    if (
+      self.config.mode === "range" &&
+      self.daysContainer &&
+      !/iPhone|iPad|iPod/i.test(navigator.userAgent)
+    )
       bind(self.daysContainer, "mouseover", (e: MouseEvent) =>
         onMouseOver(e.target as DayElement)
       );
@@ -358,10 +362,8 @@ function FlatpickrInstance(
     bind(window.document.body, "mousedown", onClick(documentClick));
     bind(self._input, "blur", documentClick);
 
-    if (self.config.clickOpens === true) {
-      bind(self._input, "focus", self.open);
-      bind(self._input, "mousedown", onClick(self.open));
-    }
+    bind(self._input, "focus", self.open);
+    bind(self._input, "mousedown", onClick(self.open));
 
     if (self.daysContainer !== undefined) {
       self.monthNav.addEventListener("wheel", e => e.preventDefault());
@@ -1655,7 +1657,8 @@ function FlatpickrInstance(
       return;
     }
 
-    if (self._input.disabled || self.config.inline) return;
+    if (self._input.disabled || self.config.inline || !self.config.clickOpens)
+      return;
 
     const wasOpen = self.isOpen;
 
