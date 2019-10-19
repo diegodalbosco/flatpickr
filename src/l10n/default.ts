@@ -1,4 +1,4 @@
-import { Locale } from "types/locale";
+import { Locale } from "../types/locale";
 
 export const english: Locale = {
   weekdays: {
@@ -64,6 +64,10 @@ export const english: Locale = {
   scrollTitle: "Scroll to increment",
   toggleTitle: "Click to toggle",
   amPM: ["AM", "PM"],
+  yearAriaLabel: "Year",
+  hourAriaLabel: "Hour",
+  minuteAriaLabel: "Minute",
+  time_24hr: false,
 };
 
 export default english;

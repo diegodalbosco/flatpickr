@@ -1,13 +1,13 @@
 /* Czech locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Czech: CustomLocale = {
   weekdays: {
@@ -22,7 +22,6 @@ export const Czech: CustomLocale = {
       "Sobota",
     ],
   },
-
   months: {
     shorthand: [
       "Led",
@@ -53,14 +52,17 @@ export const Czech: CustomLocale = {
       "Prosinec",
     ],
   },
-
-  rangeSeparator: " do ",
-
   firstDayOfWeek: 1,
-
   ordinal: function() {
     return ".";
   },
+  rangeSeparator: " do ",
+  weekAbbreviation: "Týd.",
+  scrollTitle: "Rolujte pro změnu",
+  toggleTitle: "Přepnout dopoledne/odpoledne",
+  amPM: ["dop.", "odp."],
+  yearAriaLabel: "Rok",
+  time_24hr: true,
 };
 
 fp.l10ns.cs = Czech;

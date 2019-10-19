@@ -1,17 +1,15 @@
 /* Russian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Russian: CustomLocale = {
-  firstDayOfWeek: 1, // Monday
-
   weekdays: {
     shorthand: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
     longhand: [
@@ -24,7 +22,6 @@ export const Russian: CustomLocale = {
       "Суббота",
     ],
   },
-
   months: {
     shorthand: [
       "Янв",
@@ -55,10 +52,17 @@ export const Russian: CustomLocale = {
       "Декабрь",
     ],
   },
-
+  firstDayOfWeek: 1,
+  ordinal: function() {
+    return "";
+  },
   rangeSeparator: " — ",
+  weekAbbreviation: "Нед.",
   scrollTitle: "Прокрутите для увеличения",
   toggleTitle: "Нажмите для переключения",
+  amPM: ["ДП", "ПП"],
+  yearAriaLabel: "Год",
+  time_24hr: true,
 };
 
 fp.l10ns.ru = Russian;

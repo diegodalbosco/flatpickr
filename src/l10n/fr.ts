@@ -1,63 +1,63 @@
 /* French locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const French: CustomLocale = {
   firstDayOfWeek: 1,
 
   weekdays: {
-    shorthand: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+    shorthand: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"],
     longhand: [
-      "Dimanche",
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
+      "dimanche",
+      "lundi",
+      "mardi",
+      "mercredi",
+      "jeudi",
+      "vendredi",
+      "samedi",
     ],
   },
 
   months: {
     shorthand: [
-      "Janv",
-      "Févr",
-      "Mars",
-      "Avr",
-      "Mai",
-      "Juin",
-      "Juil",
-      "Août",
-      "Sept",
-      "Oct",
-      "Nov",
-      "Déc",
+      "janv",
+      "févr",
+      "mars",
+      "avr",
+      "mai",
+      "juin",
+      "juil",
+      "août",
+      "sept",
+      "oct",
+      "nov",
+      "déc",
     ],
     longhand: [
-      "Janvier",
-      "Février",
-      "Mars",
-      "Avril",
-      "Mai",
-      "Juin",
-      "Juillet",
-      "Août",
-      "Septembre",
-      "Octobre",
-      "Novembre",
-      "Décembre",
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre",
     ],
   },
 
   ordinal: nth => {
-    if (nth > 1) return "ème";
+    if (nth > 1) return "";
 
     return "er";
   },
@@ -65,6 +65,7 @@ export const French: CustomLocale = {
   weekAbbreviation: "Sem",
   scrollTitle: "Défiler pour augmenter la valeur",
   toggleTitle: "Cliquer pour basculer",
+  time_24hr: true,
 };
 
 fp.l10ns.fr = French;

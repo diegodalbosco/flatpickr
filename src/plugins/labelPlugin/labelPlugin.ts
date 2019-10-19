@@ -1,7 +1,7 @@
-import { Instance } from "types/instance";
+import { Plugin } from "../../types/options";
 
-function labelPlugin() {
-  return function(fp: Instance) {
+function labelPlugin(): Plugin {
+  return function(fp) {
     return {
       onReady() {
         const id = fp.input.id;
@@ -17,6 +17,8 @@ function labelPlugin() {
           fp.input.removeAttribute("id");
           fp.altInput.id = id;
         }
+
+        fp.loadedPlugins.push("labelPlugin");
       },
     };
   };

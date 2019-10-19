@@ -1,13 +1,13 @@
 /* Dutch locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Dutch: CustomLocale = {
   weekdays: {
@@ -59,6 +59,7 @@ export const Dutch: CustomLocale = {
   rangeSeparator: " tot ",
   scrollTitle: "Scroll voor volgende / vorige",
   toggleTitle: "Klik om te wisselen",
+  time_24hr: true,
 
   ordinal: nth => {
     if (nth === 1 || nth === 8 || nth >= 20) return "ste";

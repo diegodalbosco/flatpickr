@@ -1,4 +1,4 @@
-export interface MonthsWeekDays {
+export type Locale = {
   weekdays: {
     shorthand: [string, string, string, string, string, string, string];
     longhand: [string, string, string, string, string, string, string];
@@ -33,9 +33,6 @@ export interface MonthsWeekDays {
       string
     ];
   };
-}
-
-export type Locale = MonthsWeekDays & {
   daysInMonth: [
     number,
     number,
@@ -57,9 +54,13 @@ export type Locale = MonthsWeekDays & {
   scrollTitle: string;
   toggleTitle: string;
   amPM: [string, string];
+  yearAriaLabel: string;
+  hourAriaLabel: string;
+  minuteAriaLabel: string;
+  time_24hr: boolean;
 };
 
-export type CustomLocale = MonthsWeekDays & {
+export type CustomLocale = {
   ordinal?: Locale["ordinal"];
   daysInMonth?: Locale["daysInMonth"];
   firstDayOfWeek?: Locale["firstDayOfWeek"];
@@ -67,13 +68,55 @@ export type CustomLocale = MonthsWeekDays & {
   weekAbbreviation?: Locale["weekAbbreviation"];
   toggleTitle?: Locale["toggleTitle"];
   scrollTitle?: Locale["scrollTitle"];
+  yearAriaLabel?: string;
+  hourAriaLabel?: string;
+  minuteAriaLabel?: string;
   amPM?: Locale["amPM"];
+  time_24hr?: Locale["time_24hr"];
+  weekdays: {
+    shorthand: [string, string, string, string, string, string, string];
+    longhand: [string, string, string, string, string, string, string];
+  };
+  months: {
+    shorthand: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    longhand: [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+  };
 };
 
 export type key =
   | "ar"
+  | "at"
+  | "az"
+  | "be"
   | "bg"
   | "bn"
+  | "bs"
   | "cat"
   | "cs"
   | "cy"
@@ -86,6 +129,7 @@ export type key =
   | "et"
   | "fa"
   | "fi"
+  | "fo"
   | "fr"
   | "gr"
   | "he"
@@ -93,9 +137,13 @@ export type key =
   | "hr"
   | "hu"
   | "id"
+  | "is"
   | "it"
   | "ja"
+  | "ka"
   | "ko"
+  | "km"
+  | "kz"
   | "lt"
   | "lv"
   | "mk"
@@ -119,4 +167,5 @@ export type key =
   | "tr"
   | "uk"
   | "vn"
-  | "zh";
+  | "zh"
+  | "zh_tw";

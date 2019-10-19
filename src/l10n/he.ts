@@ -1,17 +1,17 @@
 /* Hebrew locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Hebrew: CustomLocale = {
   weekdays: {
-    shorthand: ["א", "ב", "ג", "ד", "ה", "ו", "ז"],
+    shorthand: ["א", "ב", "ג", "ד", "ה", "ו", "ש"],
     longhand: ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"],
   },
 
@@ -45,6 +45,8 @@ export const Hebrew: CustomLocale = {
       "דצמבר",
     ],
   },
+  rangeSeparator: " אל ",
+  time_24hr: true,
 };
 
 fp.l10ns.he = Hebrew;

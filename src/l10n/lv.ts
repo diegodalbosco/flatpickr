@@ -1,19 +1,19 @@
 /* Latvian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Latvian: CustomLocale = {
   firstDayOfWeek: 1,
 
   weekdays: {
-    shorthand: ["Sv", "P", "Ot", "Tr", "Ce", "Pk", "Se"],
+    shorthand: ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
     longhand: [
       "Svētdiena",
       "Pirmdiena",
@@ -30,8 +30,8 @@ export const Latvian: CustomLocale = {
       "Jan",
       "Feb",
       "Mar",
-      "Mai",
       "Apr",
+      "Mai",
       "Jūn",
       "Jūl",
       "Aug",
@@ -57,6 +57,7 @@ export const Latvian: CustomLocale = {
   },
 
   rangeSeparator: " līdz ",
+  time_24hr: true,
 };
 
 fp.l10ns.lv = Latvian;

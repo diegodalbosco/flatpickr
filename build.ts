@@ -1,22 +1,22 @@
-import * as fs from "fs";
-import { promisify } from "util";
+import * as fs from "fs-extra";
 import { exec as execCommand } from "child_process";
 
-import * as glob from "glob";
+import glob from "glob";
 
-import * as uglifyJS from "uglify-js";
-
-import * as chokidar from "chokidar";
-import * as stylus from "stylus";
-import * as stylus_autoprefixer from "autoprefixer-stylus";
+import terser from "terser";
+import chokidar from "chokidar";
+import stylus from "stylus";
+import stylusAutoprefixer from "autoprefixer-stylus";
 
 import * as rollup from "rollup";
-import * as rollup_typescript from "rollup-plugin-typescript2";
 
 import * as path from "path";
+import rollupConfig, { getConfig } from "./config/rollup";
 
-const pkg = require("./package.json");
+import * as pkg from "./package.json";
 const version = `/* flatpickr v${pkg.version},, @license MIT */`;
+
+let DEV_MODE = process.argv.indexOf("--dev") > -1;
 
 const paths = {
   themes: "./src/style/themes/*.styl",
@@ -29,119 +29,106 @@ const customModuleNames: Record<string, string> = {
   confirmDate: "confirmDatePlugin",
 };
 
-const rollupConfig = {
-  inputOptions: {
-    input: "",
-    plugins: [
-      (rollup_typescript as any)({
-        abortOnError: false,
-        cacheRoot: `/tmp/.rpt2_cache`,
-      }),
-    ],
-  },
-  outputOptions: {
-    file: "",
-    format: "umd",
-    banner: `/* flatpickr v${pkg.version}, @license MIT */`,
-  },
-};
+const watchers: chokidar.FSWatcher[] = [];
 
 function logErr(e: Error | string) {
   console.error(e);
 }
 
-const writeFileAsync = promisify(fs.writeFile);
-
-function startRollup(dev = false) {
-  return new Promise((resolve, reject) => {
-    execCommand(
-      `npm run rollup:${dev ? "start" : "build"}`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${error}`);
-          return reject();
-        }
-
-        console.log(stdout);
-        console.log(stderr);
-        resolve();
-      }
-    );
-  });
-}
-
 function resolveGlob(g: string) {
   return new Promise<string[]>((resolve, reject) => {
-    glob(
-      g,
-      (err: Error | null, files: string[]) =>
-        err ? reject(err) : resolve(files)
+    glob(g, (err: Error | null, files: string[]) =>
+      err ? reject(err) : resolve(files)
     );
   });
 }
 
-async function readFileAsync(path: string) {
-  return new Promise<string>((resolve, reject) => {
-    fs.readFile(path, (err, buffer) => {
-      err ? reject(err) : resolve(buffer.toString());
-    });
-  });
+async function readFileAsync(path: string): Promise<string> {
+  try {
+    const buf = await fs.readFile(path);
+    return buf.toString();
+  } catch (e) {
+    logErr(e);
+    return e.toString();
+  }
 }
 
 function uglify(src: string) {
-  const minified = uglifyJS.minify(src, {
+  const minified = terser.minify(src, {
     output: {
       preamble: version,
       comments: false,
     },
-  } as any);
+  });
 
-  (minified as any).error && console.log((minified as any).error);
+  if (minified.error) {
+    logErr(minified.error);
+  }
   return minified.code;
+}
+
+async function buildFlatpickrJs() {
+  const bundle = await rollup.rollup(rollupConfig);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return bundle.write(rollupConfig.output!);
 }
 
 async function buildScripts() {
   try {
+    await buildFlatpickrJs();
     const transpiled = await readFileAsync("./dist/flatpickr.js");
-
-    writeFileAsync("./dist/flatpickr.min.js", uglify(transpiled)).catch(logErr);
+    fs.writeFile("./dist/flatpickr.min.js", uglify(transpiled));
   } catch (e) {
     logErr(e);
   }
 }
 
 function buildExtras(folder: "plugins" | "l10n") {
-  return async function(changed_path?: string) {
-    const [src_paths, css_paths] = await Promise.all([
-      changed_path !== undefined
-        ? [changed_path]
-        : resolveGlob(`./src/${folder}/**/*.ts`),
-      resolveGlob(`./src/${folder}/**/*.css`),
-    ]);
+  return async function(changedPath?: string) {
+    const [srcPaths, cssPaths] = await Promise.all(
+      changedPath !== undefined
+        ? changedPath.endsWith(".ts")
+          ? [[changedPath], []]
+          : [[], [changedPath]]
+        : [
+            resolveGlob(`./src/${folder}/**/*.ts`),
+            resolveGlob(`./src/${folder}/**/*.css`),
+          ]
+    );
 
-    await Promise.all([
-      ...src_paths.map(async sourcePath => {
-        const bundle = await rollup.rollup({
-          ...rollupConfig.inputOptions,
-          input: sourcePath,
-        } as any);
+    try {
+      await Promise.all([
+        ...srcPaths
+          .filter(p => !p.includes(".spec.ts"))
+          .map(async sourcePath => {
+            const bundle = await rollup.rollup({
+              ...rollupConfig,
+              cache: undefined,
+              input: sourcePath,
+            });
 
-        const fileName = path.basename(sourcePath, path.extname(sourcePath));
+            const fileName = path.basename(
+              sourcePath,
+              path.extname(sourcePath)
+            );
+            const folderName = path.basename(path.dirname(sourcePath));
 
-        return bundle.write({
-          ...rollupConfig.outputOptions,
-          file: sourcePath.replace("src", "dist").replace(".ts", ".js"),
-          name: customModuleNames[fileName] || fileName,
-        } as any);
-      }),
-      ...css_paths.map(async p => {
-        fs
-          .createReadStream(p)
-          .pipe(fs.createWriteStream(p.replace("src", "dist")));
-      }),
-    ]);
-
-    console.log("done.");
+            return bundle.write({
+              exports: folder === "l10n" ? "named" : "default",
+              format: "umd",
+              sourcemap: DEV_MODE,
+              file: sourcePath.replace("src", "dist").replace(".ts", ".js"),
+              name:
+                sourcePath.includes("plugins") && fileName === "index"
+                  ? `${folderName}Plugin`
+                  : customModuleNames[fileName] || fileName,
+            });
+          }),
+        ...(cssPaths.map(p => fs.copy(p, p.replace("src", "dist"))) as any),
+      ]);
+    } catch (err) {
+      logErr(err);
+    }
   };
 }
 
@@ -153,45 +140,53 @@ async function transpileStyle(src: string, compress = false) {
       .include(`${__dirname}/src/style`)
       .include(`${__dirname}/src/style/themes`)
       .use(
-        stylus_autoprefixer({
+        stylusAutoprefixer({
           browsers: pkg.browserslist,
         })
       )
-      .render(
-        (err: Error | undefined, css: string) =>
-          !err ? resolve(css) : reject(err)
+      .render((err: Error | undefined, css: string) =>
+        !err ? resolve(css) : reject(err)
       );
   });
 }
 
 async function buildStyle() {
-  const [src, src_ie] = await Promise.all([
-    readFileAsync(paths.style),
-    readFileAsync("./src/style/ie.styl"),
-  ]);
+  try {
+    const [src, srcIE] = await Promise.all([
+      readFileAsync(paths.style),
+      readFileAsync("./src/style/ie.styl"),
+    ]);
 
-  const [style, min, ie] = await Promise.all([
-    transpileStyle(src),
-    transpileStyle(src, true),
-    transpileStyle(src_ie),
-  ]);
-
-  writeFileAsync("./dist/flatpickr.css", style).catch(logErr);
-  writeFileAsync("./dist/flatpickr.min.css", min).catch(logErr);
-  writeFileAsync("./dist/ie.css", ie).catch(logErr);
+    await Promise.all([
+      fs.writeFile("./dist/flatpickr.css", await transpileStyle(src)),
+      fs.writeFile("./dist/flatpickr.min.css", await transpileStyle(src, true)),
+      fs.writeFile("./dist/ie.css", await transpileStyle(srcIE)),
+    ]);
+  } catch (e) {
+    logErr(e);
+  }
 }
 
 const themeRegex = /themes\/(.+).styl/;
 async function buildThemes() {
-  const themePaths = await resolveGlob("./src/style/themes/*.styl");
-  themePaths.forEach(themePath => {
-    const match = themeRegex.exec(themePath);
-    if (!match) return;
+  try {
+    const themePaths = await resolveGlob("./src/style/themes/*.styl");
+    await Promise.all(
+      themePaths.map(async themePath => {
+        const match = themeRegex.exec(themePath);
+        if (!match) return;
 
-    readFileAsync(themePath)
-      .then(transpileStyle)
-      .then(css => writeFileAsync(`./dist/themes/${match[1]}.css`, css));
-  });
+        const src = await readFileAsync(themePath);
+        return fs.writeFile(
+          `./dist/themes/${match[1]}.css`,
+          await transpileStyle(src)
+        );
+      })
+    );
+  } catch (err) {
+    logErr(err);
+  }
+  return;
 }
 
 function setupWatchers() {
@@ -201,33 +196,79 @@ function setupWatchers() {
     buildThemes();
   });
   watch("./src/style/themes", buildThemes);
+  watch("./src", (path: string) => {
+    execCommand(`npm run fmt -- ${path}`, {
+      cwd: __dirname,
+    });
+  });
 }
 
-function watch<F extends () => void>(path: string, cb: F) {
-  chokidar
-    .watch(path, {
-      awaitWriteFinish: {
-        stabilityThreshold: 100,
-      },
-    })
-    .on("change", cb)
-    .on("error", logErr);
+function watch(path: string, cb: (path: string) => void) {
+  watchers.push(
+    chokidar
+      .watch(path, {
+        // awaitWriteFinish: {
+        //   stabilityThreshold: 500,
+        // },
+        //usePolling: true,
+      })
+      .on("change", cb)
+      .on("error", logErr)
+  );
 }
 
-function start() {
-  const devMode = process.argv.indexOf("--dev") > -1;
-  startRollup(devMode).then(buildScripts);
+async function start() {
+  if (DEV_MODE) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    rollupConfig.output!.sourcemap = true;
+    const indexExists = await fs.pathExists("./index.html");
+    if (!indexExists) {
+      await fs.copyFile("./index.template.html", "./index.html");
+    }
+    const write = (s: string) => process.stdout.write(`rollup: ${s}`);
+    const watcher = rollup.watch([getConfig({ dev: true })]);
 
-  if (devMode) {
+    watcher.on("event", logEvent);
+
+    function exit() {
+      watcher.close();
+      watchers.forEach(w => w.close());
+    }
+
+    interface RollupWatchEvent {
+      code: string;
+      input?: string;
+      output?: string;
+    }
+
+    function logEvent(e: RollupWatchEvent) {
+      write(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        [e.code, e.input && `${e.input} -> ${e.output!}`, "\n"]
+          .filter(x => x)
+          .join(" ")
+      );
+    }
+
+    //catches ctrl+c event
+    process.on("SIGINT", exit);
+
+    // catches "kill pid" (for example: nodemon restart)
+    process.on("SIGUSR1", exit);
+    process.on("SIGUSR2", exit);
+
     setupWatchers();
-  } else {
-    buildStyle();
-    buildThemes();
-    buildExtras("l10n")();
-    buildExtras("plugins")();
   }
+
+  try {
+    await fs.mkdirp("./dist/themes");
+  } catch {}
+
+  buildScripts();
+  buildStyle();
+  buildThemes();
+  buildExtras("l10n")();
+  buildExtras("plugins")();
 }
 
 start();
-
-process.on("unhandledRejection", logErr);

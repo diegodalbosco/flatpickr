@@ -1,18 +1,26 @@
 /* Japanese locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Japanese: CustomLocale = {
   weekdays: {
     shorthand: ["日", "月", "火", "水", "木", "金", "土"],
-    longhand: ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"],
+    longhand: [
+      "日曜日",
+      "月曜日",
+      "火曜日",
+      "水曜日",
+      "木曜日",
+      "金曜日",
+      "土曜日",
+    ],
   },
 
   months: {
@@ -45,6 +53,9 @@ export const Japanese: CustomLocale = {
       "12月",
     ],
   },
+  time_24hr: true,
+  rangeSeparator: " から ",
+  firstDayOfWeek: 1,
 };
 
 fp.l10ns.ja = Japanese;

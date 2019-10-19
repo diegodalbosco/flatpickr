@@ -1,7 +1,6 @@
 import { int, pad } from "../utils";
 import { Locale } from "../types/locale";
 import { ParsedOptions } from "../types/options";
-import { monthToStr } from "../utils/dates";
 
 export type token =
   | "D"
@@ -24,10 +23,17 @@ export type token =
   | "m"
   | "n"
   | "s"
+  | "u"
   | "w"
   | "y";
 
-const do_nothing = (): undefined => undefined;
+const doNothing = (): undefined => undefined;
+
+export const monthToStr = (
+  monthNumber: number,
+  shorthand: boolean,
+  locale: Locale
+) => locale.months[shorthand ? "shorthand" : "longhand"][monthNumber];
 
 export type RevFormatFn = (
   date: Date,
@@ -36,7 +42,7 @@ export type RevFormatFn = (
 ) => Date | void | undefined;
 export type RevFormat = Record<string, RevFormatFn>;
 export const revFormat: RevFormat = {
-  D: do_nothing,
+  D: doNothing,
   F: function(dateObj: Date, monthName: string, locale: Locale) {
     dateObj.setMonth(locale.months.longhand.indexOf(monthName));
   },
@@ -49,8 +55,11 @@ export const revFormat: RevFormat = {
   J: (dateObj: Date, day: string) => {
     dateObj.setDate(parseFloat(day));
   },
-  K: (dateObj: Date, amPM: string) => {
-    dateObj.setHours(dateObj.getHours() % 12 + 12 * int(/pm/i.test(amPM)));
+  K: (dateObj: Date, amPM: string, locale: Locale) => {
+    dateObj.setHours(
+      (dateObj.getHours() % 12) +
+        12 * int(new RegExp(locale.amPM[1], "i").test(amPM))
+    );
   },
   M: function(dateObj: Date, shortMonth: string, locale: Locale) {
     dateObj.setMonth(locale.months.shorthand.indexOf(shortMonth));
@@ -60,9 +69,9 @@ export const revFormat: RevFormat = {
   },
   U: (_: Date, unixSeconds: string) => new Date(parseFloat(unixSeconds) * 1000),
 
-  W: function(dateObj: Date, weekNum: string) {
+  W: function(dateObj: Date, weekNum: string, locale: Locale) {
     const weekNumber = parseInt(weekNum);
-    return new Date(
+    const date = new Date(
       dateObj.getFullYear(),
       0,
       2 + (weekNumber - 1) * 7,
@@ -71,6 +80,9 @@ export const revFormat: RevFormat = {
       0,
       0
     );
+    date.setDate(date.getDate() - date.getDay() + locale.firstDayOfWeek);
+
+    return date;
   },
   Y: (dateObj: Date, year: string) => {
     dateObj.setFullYear(parseFloat(year));
@@ -89,7 +101,7 @@ export const revFormat: RevFormat = {
   j: (dateObj: Date, day: string) => {
     dateObj.setDate(parseFloat(day));
   },
-  l: do_nothing,
+  l: doNothing,
   m: (dateObj: Date, month: string) => {
     dateObj.setMonth(parseFloat(month) - 1);
   },
@@ -99,7 +111,9 @@ export const revFormat: RevFormat = {
   s: (dateObj: Date, seconds: string) => {
     dateObj.setSeconds(parseFloat(seconds));
   },
-  w: do_nothing,
+  u: (_: Date, unixMillSeconds: string) =>
+    new Date(parseFloat(unixMillSeconds)),
+  w: doNothing,
   y: (dateObj: Date, year: string) => {
     dateObj.setFullYear(2000 + parseFloat(year));
   },
@@ -112,7 +126,7 @@ export const tokenRegex: TokenRegex = {
   G: "(\\d\\d|\\d)",
   H: "(\\d\\d|\\d)",
   J: "(\\d\\d|\\d)\\w+",
-  K: "(am|AM|Am|aM|pm|PM|Pm|pM)",
+  K: "", // locale-dependent, setup on runtime
   M: "(\\w+)",
   S: "(\\d\\d|\\d)",
   U: "(.+)",
@@ -127,6 +141,7 @@ export const tokenRegex: TokenRegex = {
   m: "(\\d\\d|\\d)",
   n: "(\\d\\d|\\d)",
   s: "(\\d\\d|\\d)",
+  u: "(.+)",
   w: "(\\d\\d|\\d)",
   y: "(\\d{2})",
 };
@@ -171,7 +186,7 @@ export const formats: Formats = {
   },
 
   // AM/PM
-  K: (date: Date) => (date.getHours() > 11 ? "PM" : "AM"),
+  K: (date: Date, locale: Locale) => locale.amPM[int(date.getHours() > 11)],
 
   // shorthand month e.g. Jan, Sep, Oct, etc
   M: function(date: Date, locale: Locale) {
@@ -216,6 +231,9 @@ export const formats: Formats = {
 
   // seconds 0-59
   s: (date: Date) => date.getSeconds(),
+
+  // Unix Milliseconds
+  u: (date: Date) => date.getTime(),
 
   // number of the day of the week
   w: (date: Date) => date.getDay(),

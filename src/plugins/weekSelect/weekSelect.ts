@@ -1,14 +1,16 @@
-import { Instance, DayElement } from "types/instance";
+import { DayElement } from "../../types/instance";
+import { Plugin } from "../../types/options";
+import { getEventTarget } from "../../utils/dom";
 
-type InstancePlusWeeks = Instance & {
+export type PlusWeeks = {
   weekStartDay: Date;
   weekEndDay: Date;
 };
 
-function weekSelectPlugin() {
-  return function(fp: InstancePlusWeeks) {
+function weekSelectPlugin(): Plugin<PlusWeeks> {
+  return function(fp) {
     function onDayHover(event: MouseEvent) {
-      const day = event.target as DayElement;
+      const day = getEventTarget(event) as DayElement;
       if (!day.classList.contains("flatpickr-day")) return;
 
       const days = fp.days.childNodes;
@@ -31,12 +33,17 @@ function weekSelectPlugin() {
     }
 
     function highlightWeek() {
-      if (fp.selectedDateElem) {
+      const selDate = fp.latestSelectedDateObj;
+      if (
+        selDate !== undefined &&
+        selDate.getMonth() === fp.currentMonth &&
+        selDate.getFullYear() === fp.currentYear
+      ) {
         fp.weekStartDay = (fp.days.childNodes[
-          7 * Math.floor(fp.selectedDateElem.$i / 7)
+          7 * Math.floor((fp.selectedDateElem as DayElement).$i / 7)
         ] as DayElement).dateObj;
         fp.weekEndDay = (fp.days.childNodes[
-          7 * Math.ceil(fp.selectedDateElem.$i / 7 + 0.01) - 1
+          7 * Math.ceil((fp.selectedDateElem as DayElement).$i / 7 + 0.01) - 1
         ] as DayElement).dateObj;
       }
       const days = fp.days.childNodes;
@@ -67,14 +74,25 @@ function weekSelectPlugin() {
       onValueUpdate: highlightWeek,
       onMonthChange: highlightWeek,
       onYearChange: highlightWeek,
+      onOpen: highlightWeek,
       onClose: clearHover,
       onParseConfig: function() {
         fp.config.mode = "single";
         fp.config.enableTime = false;
-        fp.config.dateFormat = "\\W\\e\\e\\k #W, Y";
-        fp.config.altFormat = "\\W\\e\\e\\k #W, Y";
+        fp.config.dateFormat = fp.config.dateFormat
+          ? fp.config.dateFormat
+          : "\\W\\e\\e\\k #W, Y";
+        fp.config.altFormat = fp.config.altFormat
+          ? fp.config.altFormat
+          : "\\W\\e\\e\\k #W, Y";
       },
-      onReady: [onReady, highlightWeek],
+      onReady: [
+        onReady,
+        highlightWeek,
+        () => {
+          fp.loadedPlugins.push("weekSelect");
+        },
+      ],
       onDestroy,
     };
   };

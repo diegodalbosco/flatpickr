@@ -1,13 +1,13 @@
 /* Albanian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Albanian: CustomLocale = {
   weekdays: {
@@ -53,6 +53,7 @@ export const Albanian: CustomLocale = {
       "Dhjetor",
     ],
   },
+  time_24hr: true,
 };
 
 fp.l10ns.sq = Albanian;

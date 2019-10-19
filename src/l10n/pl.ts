@@ -1,13 +1,13 @@
 /* Polish locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Polish: CustomLocale = {
   weekdays: {
@@ -53,6 +53,12 @@ export const Polish: CustomLocale = {
       "Grudzień",
     ],
   },
+  rangeSeparator: " do ",
+  weekAbbreviation: "tydz.",
+  scrollTitle: "Przewiń, aby zwiększyć",
+  toggleTitle: "Kliknij, aby przełączyć",
+  firstDayOfWeek: 1,
+  time_24hr: true,
 
   ordinal: () => {
     return ".";

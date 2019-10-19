@@ -1,4 +1,6 @@
-import { Instance } from "types/instance";
+import { Instance } from "../../types/instance";
+import { Plugin } from "../../types/options";
+import { getEventTarget } from "../../utils/dom";
 
 export interface Config {
   confirmIcon?: string;
@@ -15,28 +17,29 @@ const defaultConfig: Config = {
   theme: "light",
 };
 
-function confirmDatePlugin(pluginConfig: Config) {
+function confirmDatePlugin(pluginConfig: Config): Plugin {
   const config = { ...defaultConfig, ...pluginConfig };
   let confirmContainer: HTMLDivElement;
+  const confirmButtonCSSClass = "flatpickr-confirm";
 
   return function(fp: Instance) {
-    const hooks = {
+    if (fp.config.noCalendar || fp.isMobile) return {};
+    return {
       onKeyDown(_: Date[], __: string, ___: Instance, e: KeyboardEvent) {
-        if (fp.config.enableTime && e.key === "Tab" && e.target === fp.amPM) {
+        const eventTarget = getEventTarget(e);
+        if (fp.config.enableTime && e.key === "Tab" && eventTarget === fp.amPM) {
           e.preventDefault();
           confirmContainer.focus();
-        } else if (e.key === "Enter" && e.target === confirmContainer)
+        } else if (e.key === "Enter" && eventTarget === confirmContainer)
           fp.close();
       },
 
       onReady() {
-        if (fp.calendarContainer === undefined) return;
-
         confirmContainer = fp._createElement<HTMLDivElement>(
           "div",
-          `flatpickr-confirm ${config.showAlways
-            ? "visible"
-            : ""} ${config.theme}Theme`,
+          `${confirmButtonCSSClass} ${config.showAlways ? "visible" : ""} ${
+            config.theme
+          }Theme`,
           config.confirmText
         );
 
@@ -45,21 +48,36 @@ function confirmDatePlugin(pluginConfig: Config) {
 
         confirmContainer.addEventListener("click", fp.close);
         fp.calendarContainer.appendChild(confirmContainer);
+
+        fp.loadedPlugins.push("confirmDate");
       },
-      ...!config.showAlways
+      ...(!config.showAlways
         ? {
-            onChange: function(_: Date, dateStr: string) {
+            onChange: function(_: Date[], dateStr: string) {
               const showCondition =
-                fp.config.enableTime || fp.config.mode === "multiple";
-              if (dateStr && !fp.config.inline && showCondition)
-                return confirmContainer.classList.add("visible");
-              confirmContainer.classList.remove("visible");
+                fp.config.enableTime ||
+                fp.config.mode === "multiple" ||
+                fp.loadedPlugins.indexOf("monthSelect") !== -1;
+
+              const localConfirmContainer = fp.calendarContainer.querySelector(
+                `.${confirmButtonCSSClass}`
+              );
+
+              if (!localConfirmContainer) return;
+
+              if (
+                dateStr &&
+                !fp.config.inline &&
+                showCondition &&
+                localConfirmContainer
+              )
+                return localConfirmContainer.classList.add("visible");
+
+              localConfirmContainer.classList.remove("visible");
             },
           }
-        : {},
+        : {}),
     };
-
-    return hooks;
   };
 }
 

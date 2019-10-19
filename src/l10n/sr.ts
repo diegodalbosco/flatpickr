@@ -1,17 +1,17 @@
 /* Serbian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Serbian: CustomLocale = {
   weekdays: {
-    shorthand: ["Ned", "Pon", "Uto", "Sre", "Čet", "Pet", "Sub", "Ned"],
+    shorthand: ["Ned", "Pon", "Uto", "Sre", "Čet", "Pet", "Sub"],
     longhand: [
       "Nedelja",
       "Ponedeljak",
@@ -20,7 +20,6 @@ export const Serbian: CustomLocale = {
       "Četvrtak",
       "Petak",
       "Subota",
-      "Nedelja",
     ],
   },
 
@@ -58,6 +57,7 @@ export const Serbian: CustomLocale = {
   firstDayOfWeek: 1,
   weekAbbreviation: "Ned.",
   rangeSeparator: " do ",
+  time_24hr: true,
 };
 
 fp.l10ns.sr = Serbian;

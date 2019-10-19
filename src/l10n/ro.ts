@@ -1,17 +1,17 @@
 /* Romanian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Romanian: CustomLocale = {
   weekdays: {
-    shorthand: ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sam"],
+    shorthand: ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"],
     longhand: [
       "Duminică",
       "Luni",
@@ -55,6 +55,7 @@ export const Romanian: CustomLocale = {
   },
 
   firstDayOfWeek: 1,
+  time_24hr: true,
 
   ordinal: () => {
     return "";

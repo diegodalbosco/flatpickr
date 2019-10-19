@@ -1,6 +1,10 @@
-import { key, CustomLocale } from "types/locale";
+import { key, CustomLocale } from "../types/locale";
 
 import { Arabic as ar } from "./ar";
+import { Austria as at } from "./at";
+import { Azerbaijan as az } from "./az";
+import { Belarusian as be } from "./be";
+import { Bosnian as bs } from "./bs";
 import { Bulgarian as bg } from "./bg";
 import { Bangla as bn } from "./bn";
 import { Catalan as cat } from "./cat";
@@ -14,6 +18,7 @@ import { Spanish as es } from "./es";
 import { Estonian as et } from "./et";
 import { Persian as fa } from "./fa";
 import { Finnish as fi } from "./fi";
+import { Faroese as fo } from "./fo";
 import { French as fr } from "./fr";
 import { Greek as gr } from "./gr";
 import { Hebrew as he } from "./he";
@@ -21,9 +26,13 @@ import { Hindi as hi } from "./hi";
 import { Croatian as hr } from "./hr";
 import { Hungarian as hu } from "./hu";
 import { Indonesian as id } from "./id";
+import { Icelandic as is } from "./is";
 import { Italian as it } from "./it";
 import { Japanese as ja } from "./ja";
+import { Georgian as ka } from "./ka";
 import { Korean as ko } from "./ko";
+import { Khmer as km } from "./km";
+import { Kazakh as kz } from "./kz";
 import { Lithuanian as lt } from "./lt";
 import { Latvian as lv } from "./lv";
 import { Macedonian as mk } from "./mk";
@@ -48,11 +57,16 @@ import { Turkish as tr } from "./tr";
 import { Ukrainian as uk } from "./uk";
 import { Vietnamese as vn } from "./vn";
 import { Mandarin as zh } from "./zh";
+import { MandarinTraditional as zh_tw } from "./zh-tw";
 
 const l10n: Record<key, CustomLocale> = {
   ar,
+  at,
+  az,
+  be,
   bg,
   bn,
+  bs,
   cat,
   cs,
   cy,
@@ -65,6 +79,7 @@ const l10n: Record<key, CustomLocale> = {
   et,
   fa,
   fi,
+  fo,
   fr,
   gr,
   he,
@@ -72,9 +87,13 @@ const l10n: Record<key, CustomLocale> = {
   hr,
   hu,
   id,
+  is,
   it,
   ja,
+  ka,
   ko,
+  km,
+  kz,
   lt,
   lv,
   mk,
@@ -99,6 +118,7 @@ const l10n: Record<key, CustomLocale> = {
   uk,
   vn,
   zh,
+  zh_tw,
 };
 
 export default l10n;

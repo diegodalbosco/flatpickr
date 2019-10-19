@@ -1,13 +1,13 @@
 /* Sinhala locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Sinhala: CustomLocale = {
   weekdays: {
@@ -53,6 +53,7 @@ export const Sinhala: CustomLocale = {
       "දෙසැම්බර්",
     ],
   },
+  time_24hr: true,
 };
 
 fp.l10ns.si = Sinhala;

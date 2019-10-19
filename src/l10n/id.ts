@@ -1,13 +1,13 @@
 /* Indonesian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Indonesian: CustomLocale = {
   weekdays: {
@@ -51,6 +51,8 @@ export const Indonesian: CustomLocale = {
   ordinal: () => {
     return "";
   },
+  time_24hr: true,
+  rangeSeparator: " - ",
 };
 
 fp.l10ns.id = Indonesian;

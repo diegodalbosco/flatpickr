@@ -1,13 +1,13 @@
 /* Italian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Italian: CustomLocale = {
   weekdays: {
@@ -53,16 +53,13 @@ export const Italian: CustomLocale = {
       "Dicembre",
     ],
   },
-
   firstDayOfWeek: 1,
-
   ordinal: () => "°",
-
+  rangeSeparator: " al ",
   weekAbbreviation: "Se",
-
   scrollTitle: "Scrolla per aumentare",
-
   toggleTitle: "Clicca per cambiare",
+  time_24hr: true,
 };
 
 fp.l10ns.it = Italian;

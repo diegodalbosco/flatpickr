@@ -1,13 +1,13 @@
 /* Norwegian locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Norwegian: CustomLocale = {
   weekdays: {
@@ -59,6 +59,7 @@ export const Norwegian: CustomLocale = {
   weekAbbreviation: "Uke",
   scrollTitle: "Scroll for å endre",
   toggleTitle: "Klikk for å veksle",
+  time_24hr: true,
 
   ordinal: () => {
     return ".";

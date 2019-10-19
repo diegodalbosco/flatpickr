@@ -1,24 +1,24 @@
 /* Farsi (Persian) locals for flatpickr */
-import { CustomLocale } from "types/locale";
-import { FlatpickrFn } from "types/instance";
+import { CustomLocale } from "../types/locale";
+import { FlatpickrFn } from "../types/instance";
 
 const fp =
   typeof window !== "undefined" && window.flatpickr !== undefined
     ? window.flatpickr
-    : {
+    : ({
         l10ns: {},
-      } as FlatpickrFn;
+      } as FlatpickrFn);
 
 export const Persian: CustomLocale = {
   weekdays: {
-    shorthand: ["یک", "دو", "سه", "چهار", "پنج", "آدینه", "شنبه"],
+    shorthand: ["یک", "دو", "سه", "چهار", "پنج", "جمعه", "شنبه"],
     longhand: [
       "یک‌شنبه",
       "دوشنبه",
       "سه‌شنبه",
       "چهارشنبه",
       "پنچ‌شنبه",
-      "آدینه",
+      "جمعه",
       "شنبه",
     ],
   },
@@ -53,7 +53,7 @@ export const Persian: CustomLocale = {
       "دسامبر",
     ],
   },
-
+  firstDayOfWeek: 6,
   ordinal: () => {
     return "";
   },
